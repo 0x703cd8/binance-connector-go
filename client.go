@@ -268,6 +268,10 @@ func (c *Client) NewGetQueryPreventedMatchesService() *GetQueryPreventedMatchesS
 	return &GetQueryPreventedMatchesService{c: c}
 }
 
+func (c *Client) NewGetAccountCommissionService() *GetAccountCommissionService {
+	return &GetAccountCommissionService{c: c}
+}
+
 // Market Endpoints:
 func (c *Client) NewPingService() *Ping {
 	return &Ping{c: c}
