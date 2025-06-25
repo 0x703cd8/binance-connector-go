@@ -176,8 +176,7 @@ func (s *TestNewOrder) Do(ctx context.Context, opts ...RequestOption) (res *Acco
 }
 
 // Create AccountOrderBookResponse
-type AccountOrderBookResponse struct {
-}
+type AccountOrderBookResponse struct{}
 
 // Binance New Order endpoint (POST /api/v3/order)
 // CreateOrderService create order
@@ -1749,8 +1748,7 @@ func (s *GetMyTradesService) Do(ctx context.Context, opts ...RequestOption) (res
 	return res, nil
 }
 
-//type AccountTradeListResponse []AccountTrade
-
+// type AccountTradeListResponse []AccountTrade
 type AccountTradeListResponse struct {
 	Id              int64  `json:"id"`
 	Symbol          string `json:"symbol"`
@@ -1890,4 +1888,63 @@ type QueryPreventedMatchesResponse struct {
 		MakerPreventedQuantity  string `json:"makerPreventedQuantity"`
 		TransactTime            uint64 `json:"transactTime"`
 	} `json:"preventedMatches"`
+}
+
+// Query Prevented Matches (USER_DATA)
+// GetAccountCommissionService query prevented matches
+type GetAccountCommissionService struct {
+	c      *Client
+	symbol string
+}
+
+// Symbol set symbol
+func (s *GetAccountCommissionService) Symbol(symbol string) *GetAccountCommissionService {
+	s.symbol = symbol
+	return s
+}
+
+// Do send request
+func (s *GetAccountCommissionService) Do(ctx context.Context, opts ...RequestOption) (res *AccountCommissionResponse, err error) {
+	r := &request{
+		method:   http.MethodGet,
+		endpoint: "/api/v3/account/commission",
+		secType:  secTypeSigned,
+	}
+	m := params{
+		"symbol": s.symbol,
+	}
+	r.setParams(m)
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+	res = new(AccountCommissionResponse)
+	err = json.Unmarshal(data, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Create AccountCommissionResponse
+type AccountCommissionResponse struct {
+	Symbol             string `json:"symbol"`
+	StandardCommission struct {
+		Maker  string `json:"maker"`
+		Taker  string `json:"taker"`
+		Buyer  string `json:"buyer"`
+		Seller string `json:"seller"`
+	} `json:"standardCommission"`
+	TaxCommission struct {
+		Maker  string `json:"maker"`
+		Taker  string `json:"taker"`
+		Buyer  string `json:"buyer"`
+		Seller string `json:"seller"`
+	} `json:"taxCommission"`
+	Discount struct {
+		EnabledForAccount bool   `json:"enabledForAccount"`
+		EnabledForSymbol  bool   `json:"enabledForSymbol"`
+		DiscountAsset     string `json:"discountAsset"`
+		Discount          string `json:"discount"`
+	} `json:"discount"`
 }
